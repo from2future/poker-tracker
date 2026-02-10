@@ -22,13 +22,21 @@ export const Layout = () => {
             <main className="flex-1 overflow-y-auto pb-20 sm:pb-4">
                 <div className="max-w-md mx-auto sm:max-w-2xl md:max-w-4xl p-4">
                     {/* Header for Mobile */}
-                    <div className="mb-6 mt-2 flex items-center justify-between">
-                        <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                            Poker Tracker
-                        </h1>
-                        <button onClick={handleLogout} className="text-emerald-500/80 hover:text-emerald-400 p-2">
-                            <LogOut className="w-5 h-5" />
-                        </button>
+                    <div className="mb-6 mt-2">
+                        <div className="flex justify-center gap-4 text-emerald-500/60 mb-2 text-xs">
+                            <span className="suit-float" style={{ animationDelay: '0s' }}>♠️</span>
+                            <span className="suit-float" style={{ animationDelay: '0.1s' }}>♥️</span>
+                            <span className="suit-float" style={{ animationDelay: '0.2s' }}>♣️</span>
+                            <span className="suit-float" style={{ animationDelay: '0.3s' }}>♦️</span>
+                        </div>
+                        <div className="flex items-center justify-between border-b-2 border-dashed border-slate-800 pb-4">
+                            <h1 className="text-2xl font-bold text-emerald-500 tracking-tighter">
+                                POKER_TRACKER__
+                            </h1>
+                            <button onClick={handleLogout} className="text-slate-500 hover:text-red-400 font-mono text-xs">
+                                [LOGOUT]
+                            </button>
+                        </div>
                     </div>
                     <Outlet />
                 </div>

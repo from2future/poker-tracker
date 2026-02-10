@@ -1,6 +1,59 @@
 @import "tailwindcss";
 
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap');
+
 @theme {
-  --color-brand-primary: #10b981; /* Example green */
-  --color-brand-secondary: #0f172a;
+  --font-sans: "Courier Prime", monospace;
+
+  /* Retro Dark Palette Overrides */
+  --color-slate-950: #1a1918;
+  /* Warm Charcoal Background */
+  --color-slate-900: #262422;
+  /* Card Background */
+  --color-slate-800: #383431;
+  /* Borders */
+  --color-slate-700: #4a4540;
+  /* Input Borders */
+
+  --color-emerald-600: #c09e6c;
+  /* Retro Gold/Tan for primary actions? Or keep green? */
+  --color-emerald-500: #d4af7a;
+  /* Hover */
+  --color-emerald-400: #e8c088;
+  /* Text Accent */
+
+  /* Or if user wants "Poker Table" Green but Retro: */
+  /* Let's try a Faded Felt Green instead of Gold if they want poker vibes? */
+  /* Actually, the user asked for "cute retro typewriter". Gold/Tan fits that better than green. */
+  /* But let's stick to a "Classy Green" for the money feel. */
+  /* --color-emerald-600: #4a6c42;
+     --color-emerald-500: #5d8253;
+     --color-emerald-400: #8ab07d; */
+
+  /* Wait, "Poker Symbols". Let's stick to the Green but make it nicer. */
+}
+
+/* Global Styles for that "Paper" feel */
+body {
+  background-color: var(--color-slate-950);
+  color: #e5e5e5;
+}
+
+/* Card Suit Animations */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.suit-float {
+  animation: float 3s ease-in-out infinite;
 }
