@@ -3,22 +3,7 @@ import { Users, History, LayoutDashboard, LogOut } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuthStore } from '../store/useAuthStore';
 
-const NavItem = ({ to, icon: Icon, label }: { to: string; icon: any; label: string }) => (
-    <NavLink
-        to={to}
-        className={({ isActive }) =>
-            clsx(
-                'flex flex-col items-center justify-center w-full py-2 text-xs font-medium transition-colors',
-                isActive
-                    ? 'text-emerald-400'
-                    : 'text-slate-400 hover:text-slate-200'
-            )
-        }
-    >
-        <Icon className="w-6 h-6 mb-1" />
-        <span className="hidden sm:inline">{label}</span>
-    </NavLink>
-);
+// NavItem removed as it is no longer used
 
 export const Layout = () => {
     const logout = useAuthStore((state) => state.logout);
