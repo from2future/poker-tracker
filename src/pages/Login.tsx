@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import { Lock, ArrowRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
 export const Login = () => {
     const [code, setCode] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const login = useAuthStore((state) => state.login);
+    const navigate = useNavigate();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -34,6 +36,7 @@ export const Login = () => {
 
             if (data && data.value === code) {
                 login();
+                navigate('/');
             } else {
                 setError('Invalid access code');
             }
