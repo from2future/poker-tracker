@@ -22,7 +22,15 @@ export const Login = () => {
                 .eq('key', 'access_code')
                 .single();
 
-            if (error) throw error;
+            if (error) {
+                console.error("Supabase Error:", error);
+                if (error.code === 'PGRST116') {
+                    setError('Setup Error: "access_code" not found in database.');
+                } else {
+                    setError(`Database Error: ${error.message}`);
+                }
+                throw error;
+            }
 
             if (data && data.value === code) {
                 login();
@@ -31,10 +39,10 @@ export const Login = () => {
             }
         } catch (err: any) {
             console.error("Login error", err);
-            // Fallback for demo/dev if table doesn't exist yet?
-            // Let's just say if the DB check fails, maybe checking a hardcoded one is safer for dev?
-            // No, let's stick to the plan.
-            setError('Connection error or invalid code');
+            // Don't overwrite specific errors set above
+            if (!error) {
+                setError(err.message || 'Connection error');
+            }
         } finally {
             setLoading(false);
         }
