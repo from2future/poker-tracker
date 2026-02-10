@@ -253,35 +253,83 @@ export const SessionDetails = () => {
                                         </div>
                                     </div>
                                 </div>
-                            ) : (
+const NetInput = ({
+                                value,
+                                onChange
+                            }: {
+                                value: number, 
+    onChange: (val: number) => void 
+}) => {
+    const [localValue, setLocalValue] = useState(value === 0 ? '' : value.toString());
+
+                            // Sync from parent if parent changes (and not currently focused? complex. 
+                            // Simpler: Just init from props, and onBlur commit.
+                            // Actually, if we want live updates, we can try to parse, but preserve the string if it ends in dot.
+
+                            const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+                                setLocalValue(val);
+
+                                // Only commit if it's a valid number and NOT ending in a dot or just a minus sign
+                                // This allows typing "5." or "-".
+                                if (val === '' || val === '-') {
+            // Don't commit yet, or commit 0?
+            // Better to wait for valid number.
+            return;
+        }
+
+                                const num = parseFloat(val);
+                                if (!isNaN(num) && !val.endsWith('.')) {
+                                    onChange(num);
+        }
+    };
+
+    const handleBlur = () => {
+        const num = parseFloat(localValue);
+                                if (isNaN(num)) {
+                                    onChange(0);
+                                setLocalValue('');
+        } else {
+                                    onChange(num);
+                                setLocalValue(num.toString());
+        }
+    };
+
+                                return (
+                                <div className="relative">
+                                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                                    <input
+                                        type="text" // Use text to allow "5."
+                                        inputMode="decimal"
+                                        value={localValue}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        className={clsx(
+                                            "w-full bg-slate-950 border border-slate-700 rounded-lg pl-6 pr-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500",
+                                            (parseFloat(localValue) || 0) > 0 ? "text-emerald-400" : (parseFloat(localValue) || 0) < 0 ? "text-red-400" : "text-white"
+                                        )}
+                                        placeholder="0"
+                                    />
+                                </div>
+                                );
+};
+
+                                // ... inside the list mapping:
+                                ) : (
                                 <div>
                                     <label className="block text-[10px] uppercase text-slate-500 mb-1">Net Profit / Loss</label>
-                                    <div className="relative">
-                                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                                        <input
-                                            type="number"
-                                            value={profit === 0 ? '' : profit}
-                                            onChange={(e) => {
-                                                const net = parseFloat(e.target.value) || 0;
-                                                // Net Logic: 
-                                                // If Net > 0: BuyIn=0, CashOut=Net
-                                                // If Net < 0: BuyIn=-Net, CashOut=0
-                                                // This ensures Profit = CashOut - BuyIn matches input.
-                                                if (net >= 0) {
-                                                    handleUpdateResult(result.playerId, 'buyIn', '0');
-                                                    handleUpdateResult(result.playerId, 'cashOut', net.toString());
-                                                } else {
-                                                    handleUpdateResult(result.playerId, 'buyIn', Math.abs(net).toString());
-                                                    handleUpdateResult(result.playerId, 'cashOut', '0');
-                                                }
-                                            }}
-                                            className={clsx(
-                                                "w-full bg-slate-950 border border-slate-700 rounded-lg pl-6 pr-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500",
-                                                profit > 0 ? "text-emerald-400" : profit < 0 ? "text-red-400" : "text-white"
-                                            )}
-                                            placeholder="0"
-                                        />
-                                    </div>
+                                    <NetInput
+                                        value={profit}
+                                        onChange={(net) => {
+                                            if (net >= 0) {
+                                                handleUpdateResult(result.playerId, 'buyIn', '0');
+                                                handleUpdateResult(result.playerId, 'cashOut', net.toString());
+                                            } else {
+                                                handleUpdateResult(result.playerId, 'buyIn', Math.abs(net).toString());
+                                                handleUpdateResult(result.playerId, 'cashOut', '0');
+                                            }
+                                        }}
+                                    />
                                 </div>
                             )}
                         </div>
