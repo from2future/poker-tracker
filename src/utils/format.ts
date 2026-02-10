@@ -8,7 +8,12 @@ export const formatCurrency = (amount: number): string => {
 };
 
 export const formatDate = (dateString: string): string => {
-    return new Intl.DateTimeFormat('en-US', {
-        dateStyle: 'medium',
-    }).format(new Date(dateString));
+    if (!dateString) return 'Unknown Date';
+    try {
+        return new Intl.DateTimeFormat('en-US', {
+            dateStyle: 'medium',
+        }).format(new Date(dateString));
+    } catch (e) {
+        return 'Invalid Date';
+    }
 };

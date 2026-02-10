@@ -43,10 +43,33 @@ export const usePokerStore = create<PokerState>((set, get) => ({
             if (sessionsRes.error) throw sessionsRes.error;
             if (resultsRes.error) throw resultsRes.error;
 
+            // Map DB snake_case to App camelCase
+            const mappedPlayers = (playersRes.data || []).map((p: any) => ({
+                id: p.id,
+                name: p.name,
+                createdAt: p.created_at, // critical fix
+            }));
+
+            const mappedSessions = (sessionsRes.data || []).map((s: any) => ({
+                id: s.id,
+                date: s.date,
+                location: s.location,
+                notes: s.notes,
+                createdAt: s.created_at,
+            }));
+
+            const mappedResults = (resultsRes.data || []).map((r: any) => ({
+                sessionId: r.session_id,
+                playerId: r.player_id,
+                buyIn: r.buy_in,
+                cashOut: r.cash_out,
+                createdAt: r.created_at,
+            }));
+
             set({
-                players: playersRes.data || [],
-                sessions: sessionsRes.data || [],
-                results: resultsRes.data || [],
+                players: mappedPlayers,
+                sessions: mappedSessions,
+                results: mappedResults,
             });
         } catch (err: any) {
             console.error('Error fetching data:', err);
