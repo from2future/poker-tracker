@@ -5,7 +5,6 @@ import { Players } from './pages/Players';
 import { Sessions } from './pages/Sessions';
 import { SessionDetails } from './pages/SessionDetails';
 import { Login } from './pages/Login';
-import { AdminImport } from './pages/AdminImport';
 import { AuthGuard } from './components/AuthGuard';
 import { useEffect } from 'react';
 import { usePokerStore } from './store/usePokerStore';
@@ -25,7 +24,6 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/import" element={<AdminImport />} />
 
         <Route element={<AuthGuard />}>
           <Route path="/" element={<Layout />}>
