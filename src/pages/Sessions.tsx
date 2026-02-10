@@ -11,18 +11,14 @@ export const Sessions = () => {
 
     // Form State
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-    const [location, setLocation] = useState('');
     const [notes, setNotes] = useState('');
 
     const handleCreateSession = (e: React.FormEvent) => {
         e.preventDefault();
-        if (location.trim()) {
-            const id = addSession(new Date(date).toISOString(), location.trim(), notes.trim());
-            setIsCreating(false);
-            setLocation('');
-            setNotes('');
-            navigate(`/sessions/${id}`);
-        }
+        const id = addSession(new Date(date).toISOString(), 'Home Game', notes.trim());
+        setIsCreating(false);
+        setNotes('');
+        navigate(`/sessions/${id}`);
     };
 
     return (
@@ -52,14 +48,13 @@ export const Sessions = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-medium text-slate-400 mb-1">Location</label>
+                            <label className="block text-xs font-medium text-slate-400 mb-1">Notes (Optional)</label>
                             <input
                                 type="text"
-                                value={location}
-                                onChange={(e) => setLocation(e.target.value)}
-                                placeholder="e.g. John's House"
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                placeholder="e.g. $20 Buy-in"
                                 className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                                required
                             />
                         </div>
                         <div>

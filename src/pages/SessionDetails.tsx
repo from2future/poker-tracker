@@ -17,6 +17,7 @@ export const SessionDetails = () => {
     const [selectedPlayerId, setSelectedPlayerId] = useState('');
     const [isCreatingPlayer, setIsCreatingPlayer] = useState(false);
     const [newPlayerName, setNewPlayerName] = useState('');
+    const [isNetMode, setIsNetMode] = useState(false);
 
     // Players not yet in this session
     const availablePlayers = players.filter(
@@ -182,6 +183,30 @@ export const SessionDetails = () => {
                 )}
             </div>
 
+            {/* Input Mode Toggle */}
+            <div className="flex justify-center">
+                <div className="bg-slate-900 p-1 rounded-lg flex items-center gap-1 border border-slate-800">
+                    <button
+                        onClick={() => setIsNetMode(false)}
+                        className={clsx(
+                            "px-3 py-1 rounded-md text-xs font-medium transition-colors",
+                            !isNetMode ? "bg-emerald-600 text-white" : "text-slate-400 hover:text-white"
+                        )}
+                    >
+                        Standard (Buy-In/Out)
+                    </button>
+                    <button
+                        onClick={() => setIsNetMode(true)}
+                        className={clsx(
+                            "px-3 py-1 rounded-md text-xs font-medium transition-colors",
+                            isNetMode ? "bg-emerald-600 text-white" : "text-slate-400 hover:text-white"
+                        )}
+                    >
+                        Net Profit Only
+                    </button>
+                </div>
+            </div>
+
             {/* Results List */}
             <div className="space-y-3">
                 {sessionResults.map((result) => {
@@ -198,34 +223,67 @@ export const SessionDetails = () => {
                                     {formatCurrency(profit)}
                                 </span>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+
+                            {!isNetMode ? (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-[10px] uppercase text-slate-500 mb-1">Buy-In</label>
+                                        <div className="relative">
+                                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                                            <input
+                                                type="number"
+                                                value={result.buyIn || ''}
+                                                onChange={(e) => handleUpdateResult(result.playerId, 'buyIn', e.target.value)}
+                                                className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-6 pr-2 py-1.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                placeholder="0"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] uppercase text-slate-500 mb-1">Cash-Out</label>
+                                        <div className="relative">
+                                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                                            <input
+                                                type="number"
+                                                value={result.cashOut || ''}
+                                                onChange={(e) => handleUpdateResult(result.playerId, 'cashOut', e.target.value)}
+                                                className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-6 pr-2 py-1.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                placeholder="0"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
                                 <div>
-                                    <label className="block text-[10px] uppercase text-slate-500 mb-1">Buy-In</label>
+                                    <label className="block text-[10px] uppercase text-slate-500 mb-1">Net Profit / Loss</label>
                                     <div className="relative">
                                         <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500">$</span>
                                         <input
                                             type="number"
-                                            value={result.buyIn || ''}
-                                            onChange={(e) => handleUpdateResult(result.playerId, 'buyIn', e.target.value)}
-                                            className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-6 pr-2 py-1.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                            value={profit === 0 ? '' : profit}
+                                            onChange={(e) => {
+                                                const net = parseFloat(e.target.value) || 0;
+                                                // Net Logic: 
+                                                // If Net > 0: BuyIn=0, CashOut=Net
+                                                // If Net < 0: BuyIn=-Net, CashOut=0
+                                                // This ensures Profit = CashOut - BuyIn matches input.
+                                                if (net >= 0) {
+                                                    handleUpdateResult(result.playerId, 'buyIn', '0');
+                                                    handleUpdateResult(result.playerId, 'cashOut', net.toString());
+                                                } else {
+                                                    handleUpdateResult(result.playerId, 'buyIn', Math.abs(net).toString());
+                                                    handleUpdateResult(result.playerId, 'cashOut', '0');
+                                                }
+                                            }}
+                                            className={clsx(
+                                                "w-full bg-slate-950 border border-slate-700 rounded-lg pl-6 pr-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500",
+                                                profit > 0 ? "text-emerald-400" : profit < 0 ? "text-red-400" : "text-white"
+                                            )}
                                             placeholder="0"
                                         />
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="block text-[10px] uppercase text-slate-500 mb-1">Cash-Out</label>
-                                    <div className="relative">
-                                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                                        <input
-                                            type="number"
-                                            value={result.cashOut || ''}
-                                            onChange={(e) => handleUpdateResult(result.playerId, 'cashOut', e.target.value)}
-                                            className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-6 pr-2 py-1.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                                            placeholder="0"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
+                            )}
                         </div>
                     );
                 })}
