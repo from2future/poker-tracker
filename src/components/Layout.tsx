@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import { Users, History, LayoutDashboard } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuthStore } from '../store/useAuthStore';
@@ -6,14 +6,13 @@ import { useAuthStore } from '../store/useAuthStore';
 // NavItem removed as it is no longer used
 
 export const Layout = () => {
-    const logout = useAuthStore((state) => state.logout);
-    const navigate = useNavigate();
+    const leaveRoom = useAuthStore((state) => state.leaveRoom);
+    const activeRoomName = useAuthStore((state) => state.activeRoomName);
 
     const handleLogout = () => {
-        if (confirm('Logout of private session?')) {
-            logout();
-            navigate('/login');
-        }
+        // Native confirm dialogs can block state updates and cause glitches/hangs in React router.
+        leaveRoom();
+        // AuthGuard handles the redirect automatically.
     };
 
     return (
@@ -30,11 +29,11 @@ export const Layout = () => {
                             <span className="suit-float" style={{ animationDelay: '0.3s' }}>♦️</span>
                         </div>
                         <div className="flex items-center justify-between border-b-2 border-dashed border-slate-800 pb-4">
-                            <h1 className="text-2xl font-bold text-emerald-500 tracking-tighter">
-                                POKER_TRACKER__
+                            <h1 className="text-2xl font-bold text-emerald-500 tracking-tighter truncate pr-4">
+                                {activeRoomName ? activeRoomName.toUpperCase() : 'POKER ROOM'}
                             </h1>
-                            <button onClick={handleLogout} className="text-slate-500 hover:text-red-400 font-mono text-xs">
-                                [LOGOUT]
+                            <button onClick={handleLogout} className="text-slate-500 hover:text-red-400 font-mono text-xs whitespace-nowrap">
+                                [LEAVE]
                             </button>
                         </div>
                     </div>

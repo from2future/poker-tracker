@@ -12,13 +12,13 @@ import { useAuthStore } from './store/useAuthStore';
 
 function App() {
   const fetchInitialData = usePokerStore((state) => state.fetchInitialData);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const activeRoomId = useAuthStore((state) => state.activeRoomId);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (activeRoomId) {
       fetchInitialData();
     }
-  }, [isAuthenticated, fetchInitialData]);
+  }, [activeRoomId, fetchInitialData]);
 
   return (
     <Router>

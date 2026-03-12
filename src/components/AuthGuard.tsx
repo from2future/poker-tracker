@@ -2,9 +2,9 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 
 export const AuthGuard = () => {
-    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const activeRoomId = useAuthStore((state) => state.activeRoomId);
 
-    if (!isAuthenticated) {
+    if (!activeRoomId) {
         return <Navigate to="/login" replace />;
     }
 

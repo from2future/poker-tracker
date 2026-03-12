@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import type { Player, Session, SessionPlayerResult } from '../types';
+import { useAuthStore } from './useAuthStore';
 
 interface PokerState {
     players: Player[];
@@ -31,27 +32,42 @@ export const usePokerStore = create<PokerState>((set, get) => ({
     error: null,
 
     fetchInitialData: async () => {
-        set({ isLoading: true, error: null });
+        set({ isLoading: true, error: null, players: [], sessions: [], results: [] });
         try {
-            const [playersRes, sessionsRes, resultsRes] = await Promise.all([
-                supabase.from('players').select('*').order('created_at', { ascending: true }),
-                supabase.from('sessions').select('*').order('date', { ascending: false }),
-                supabase.from('results').select('*')
+            const { activeRoomId } = useAuthStore.getState();
+            if (!activeRoomId) {
+                set({ isLoading: false, error: "No active room to fetch data for." });
+                return;
+            }
+
+            const [playersRes, sessionsRes] = await Promise.all([
+                supabase.from('players').select('*').eq('room_id', activeRoomId).order('created_at', { ascending: true }),
+                supabase.from('sessions').select('*').eq('room_id', activeRoomId).order('date', { ascending: false }),
             ]);
 
             if (playersRes.error) throw playersRes.error;
             if (sessionsRes.error) throw sessionsRes.error;
-            if (resultsRes.error) throw resultsRes.error;
+
+            const sessionIds = (sessionsRes.data || []).map(s => s.id);
+            let resultsRes: any = { data: [] };
+
+            if (sessionIds.length > 0) {
+                const res = await supabase.from('results').select('*').in('session_id', sessionIds);
+                if (res.error) throw res.error;
+                resultsRes = res;
+            }
 
             // Map DB snake_case to App camelCase
             const mappedPlayers = (playersRes.data || []).map((p: any) => ({
                 id: p.id,
+                roomId: p.room_id,
                 name: p.name,
                 createdAt: p.created_at, // critical fix
             }));
 
             const mappedSessions = (sessionsRes.data || []).map((s: any) => ({
                 id: s.id,
+                roomId: s.room_id,
                 date: s.date,
                 location: s.location,
                 notes: s.notes,
@@ -81,9 +97,12 @@ export const usePokerStore = create<PokerState>((set, get) => ({
 
     addPlayer: async (name) => {
         try {
+            const { activeRoomId } = useAuthStore.getState();
+            if (!activeRoomId) throw new Error("No active room");
+
             const { data, error } = await supabase
                 .from('players')
-                .insert([{ name }])
+                .insert([{ name, room_id: activeRoomId }])
                 .select()
                 .single();
 
@@ -121,9 +140,12 @@ export const usePokerStore = create<PokerState>((set, get) => ({
 
     addSession: async (date, location, notes) => {
         try {
+            const { activeRoomId } = useAuthStore.getState();
+            if (!activeRoomId) throw new Error("No active room");
+
             const { data, error } = await supabase
                 .from('sessions')
-                .insert([{ date, location, notes }])
+                .insert([{ date, location, notes, room_id: activeRoomId }])
                 .select()
                 .single();
 

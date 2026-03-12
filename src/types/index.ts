@@ -1,11 +1,19 @@
+export interface Room {
+    id: string;
+    name: string;
+    createdAt: string;
+}
+
 export interface Player {
     id: string;
+    roomId: string; // Reference to Room
     name: string;
     createdAt: string; // ISO string
 }
 
 export interface Session {
     id: string;
+    roomId: string; // Reference to Room
     date: string; // ISO string
     location: string;
     notes?: string;
