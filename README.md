@@ -1,6 +1,6 @@
-# 🦉 Poker Tracker (Cosmic Owl Edition)
+# Poker Tracker
 
-A beautifully themed, retro Y2K web application designed to track poker sessions and debts among friends. No more confusing spreadsheets or lost money—this app keeps your ledger balanced while looking incredibly stylish.
+A web application designed to track poker sessions and debts among friends. No more confusing spreadsheets or lost money—this app keeps your ledger balanced.
 
 ## ✨ Features
 
@@ -8,7 +8,6 @@ A beautifully themed, retro Y2K web application designed to track poker sessions
 - **Session Tracking**: Log new game nights (Notes), track where they happened, and add specific details.
 - **Player Management**: Easily add friends to your room and manage who played in which session.
 - **Ledger & Debt Management**: Track exactly what every player bought in for and cashed out for. The app automatically calculates net discrepancies to ensure no money goes missing and your ledger is perfectly balanced.
-- **Cosmic Owl Aesthetic**: A fully custom Y2K digital aesthetic featuring pastel color palettes, 8-bit pixel fonts, harsh retro shadows, nostalgic cursor replacements, and decorative digital stickers.
 
 ## 🛠 Tech Stack
 
@@ -50,6 +49,3 @@ A beautifully themed, retro Y2K web application designed to track poker sessions
    ```
 
 5. Open your browser and navigate to `http://localhost:5173`.
-
-## 🎨 Design Details
-The "Cosmic Owl" redesign completely transforms generic dashboard UI into a customized board-game night experience. It leverages `Press Start 2P` for data readability and `Dancing Script` for title accents, combined with carefully placed static assets (`/public/cosmic-owl/stickers`) to give the UI a living, scrapbook feel.
