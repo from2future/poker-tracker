@@ -3,6 +3,9 @@ import { supabase } from '../lib/supabase';
 import type { Player, Session, SessionPlayerResult } from '../types';
 import { useAuthStore } from './useAuthStore';
 
+// Module-level map to track debounce timers for player results
+const debounceTimers = new Map<string, any>();
+
 interface PokerState {
     players: Player[];
     sessions: Session[];
@@ -186,73 +189,44 @@ export const usePokerStore = create<PokerState>((set, get) => ({
     },
 
     setResult: async (result) => {
-        // Optimistic update locally first for speed? 
-        // For now, let's just do direct DB calls for simplicity and reliability.
-        try {
-            // Check if exists
-            const existing = get().results.find(
-                r => r.sessionId === result.sessionId && r.playerId === result.playerId
+        // 1. Optimistic update locally first for absolute speed
+        set(state => {
+            const otherResults = state.results.filter(
+                r => !(r.sessionId === result.sessionId && r.playerId === result.playerId)
             );
+            return {
+                results: [...otherResults, result]
+            };
+        });
 
-            let error;
+        // 2. Debounce the DB persistence
+        const timerKey = `${result.sessionId}-${result.playerId}`;
+        if (debounceTimers.has(timerKey)) {
+            clearTimeout(debounceTimers.get(timerKey));
+        }
 
-            if (existing) {
-                ({ error } = await supabase
+        const timer = setTimeout(async () => {
+            debounceTimers.delete(timerKey);
+            try {
+                const { error } = await supabase
                     .from('results')
-                    .update({ buy_in: result.buyIn, cash_out: result.cashOut })
-                    .eq('session_id', result.sessionId)
-                    .eq('player_id', result.playerId)
-                    .select()
-                    .single());
-            } else {
-                ({ error } = await supabase
-                    .from('results')
-                    .insert([{
+                    .upsert({
                         session_id: result.sessionId,
                         player_id: result.playerId,
                         buy_in: result.buyIn,
                         cash_out: result.cashOut
-                    }])
-                    .select()
-                    .single());
+                    }, {
+                        onConflict: 'session_id,player_id'
+                    });
+
+                if (error) throw error;
+            } catch (err: any) {
+                console.error('Error persisting result:', err);
+                set({ error: err.message });
             }
+        }, 500); // 500ms debounce
 
-            if (error) throw error;
-
-            // Normalize back from DB columns (snake_case) to app types (camelCase)
-            // Actually, we should probably update our Types to match DB or use a mapper.
-            // For speed, I'll map it manually here.
-            // Wait, supabase returns data in the shape of the table.
-
-            // To avoid complex re-fetching, let's just update local state with the input result
-            // assuming success. Or better, fetch the updated row.
-
-            // Re-fetch results for this session to be safe
-            const { data: sessionResults, error: fetchError } = await supabase
-                .from('results')
-                .select('*')
-                .eq('session_id', result.sessionId);
-
-            if (fetchError) throw fetchError;
-
-            // Map back to our CamelCase types
-            const mappedResults: SessionPlayerResult[] = sessionResults.map((r: any) => ({
-                sessionId: r.session_id,
-                playerId: r.player_id,
-                buyIn: r.buy_in,
-                cashOut: r.cash_out
-            }));
-
-            set(state => ({
-                results: [
-                    ...state.results.filter(r => r.sessionId !== result.sessionId),
-                    ...mappedResults
-                ]
-            }));
-
-        } catch (err: any) {
-            set({ error: err.message });
-        }
+        debounceTimers.set(timerKey, timer);
     },
 
     getSessionResults: (sessionId) => {

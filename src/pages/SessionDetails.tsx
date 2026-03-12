@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, UserPlus, Trash2, X, Check } from 'lucide-react';
 import { usePokerStore } from '../store/usePokerStore';
@@ -14,12 +14,22 @@ const NetInput = ({
 }) => {
     const [localValue, setLocalValue] = useState(value === 0 ? '' : value.toString());
 
-    // Sync validation on blur
+    // Sync local state if prop changes from outside (but not while typing)
+    useEffect(() => {
+        const numLocal = parseFloat(localValue) || 0;
+        if (value !== numLocal) {
+            setLocalValue(value === 0 ? '' : value.toString());
+        }
+    }, [value]);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
         setLocalValue(val);
 
-        if (val === '' || val === '-') return;
+        if (val === '' || val === '-') {
+            onChange(0);
+            return;
+        }
 
         const num = parseFloat(val);
         if (!isNaN(num) && !val.endsWith('.')) {
@@ -51,6 +61,44 @@ const NetInput = ({
                     "w-full bg-slate-950 border border-slate-700 rounded-lg pl-6 pr-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500",
                     (parseFloat(localValue) || 0) > 0 ? "text-emerald-400" : (parseFloat(localValue) || 0) < 0 ? "text-red-400" : "text-white"
                 )}
+                placeholder="0"
+            />
+        </div>
+    );
+};
+
+// Internal component for smooth number inputs in Standard mode
+const StandardInput = ({ value, onChange }: { value: number, onChange: (val: number) => void }) => {
+    const [localValue, setLocalValue] = useState(value === 0 ? '' : value.toString());
+
+    useEffect(() => {
+        if (value !== (parseFloat(localValue) || 0)) {
+            setLocalValue(value === 0 ? '' : value.toString());
+        }
+    }, [value]);
+
+    return (
+        <div className="relative">
+            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+            <input
+                type="text"
+                inputMode="decimal"
+                value={localValue}
+                onChange={(e) => {
+                    setLocalValue(e.target.value);
+                    const num = parseFloat(e.target.value);
+                    if (!isNaN(num) && !e.target.value.endsWith('.')) {
+                        onChange(num);
+                    } else if (e.target.value === '') {
+                        onChange(0);
+                    }
+                }}
+                onBlur={() => {
+                    const num = parseFloat(localValue) || 0;
+                    onChange(num);
+                    setLocalValue(num === 0 ? '' : num.toString());
+                }}
+                className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-6 pr-2 py-1.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 placeholder="0"
             />
         </div>
@@ -116,13 +164,12 @@ export const SessionDetails = () => {
         }
     };
 
-    const handleUpdateResult = (playerId: string, field: 'buyIn' | 'cashOut', value: string) => {
-        const numValue = parseFloat(value) || 0;
+    const handleUpdateResult = (playerId: string, field: 'buyIn' | 'cashOut', value: number) => {
         const currentResult = sessionResults.find((r) => r.playerId === playerId);
         if (currentResult) {
             setResult({
                 ...currentResult,
-                [field]: numValue,
+                [field]: value,
             });
         }
     };
@@ -280,29 +327,17 @@ export const SessionDetails = () => {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-[10px] uppercase text-slate-500 mb-1">Buy-In</label>
-                                        <div className="relative">
-                                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                                            <input
-                                                type="number"
-                                                value={result.buyIn || ''}
-                                                onChange={(e) => handleUpdateResult(result.playerId, 'buyIn', e.target.value)}
-                                                className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-6 pr-2 py-1.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                                                placeholder="0"
-                                            />
-                                        </div>
+                                        <StandardInput
+                                            value={result.buyIn}
+                                            onChange={(val) => handleUpdateResult(result.playerId, 'buyIn', val)}
+                                        />
                                     </div>
                                     <div>
                                         <label className="block text-[10px] uppercase text-slate-500 mb-1">Cash-Out</label>
-                                        <div className="relative">
-                                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                                            <input
-                                                type="number"
-                                                value={result.cashOut || ''}
-                                                onChange={(e) => handleUpdateResult(result.playerId, 'cashOut', e.target.value)}
-                                                className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-6 pr-2 py-1.5 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                                                placeholder="0"
-                                            />
-                                        </div>
+                                        <StandardInput
+                                            value={result.cashOut}
+                                            onChange={(val) => handleUpdateResult(result.playerId, 'cashOut', val)}
+                                        />
                                     </div>
                                 </div>
                             ) : (
@@ -313,11 +348,11 @@ export const SessionDetails = () => {
                                         value={profit}
                                         onChange={(net) => {
                                             if (net >= 0) {
-                                                handleUpdateResult(result.playerId, 'buyIn', '0');
-                                                handleUpdateResult(result.playerId, 'cashOut', net.toString());
+                                                handleUpdateResult(result.playerId, 'buyIn', 0);
+                                                handleUpdateResult(result.playerId, 'cashOut', net);
                                             } else {
-                                                handleUpdateResult(result.playerId, 'buyIn', Math.abs(net).toString());
-                                                handleUpdateResult(result.playerId, 'cashOut', '0');
+                                                handleUpdateResult(result.playerId, 'buyIn', Math.abs(net));
+                                                handleUpdateResult(result.playerId, 'cashOut', 0);
                                             }
                                         }}
                                     />
