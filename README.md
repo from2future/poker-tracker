@@ -1,73 +1,55 @@
-# React + TypeScript + Vite
+# 🦉 Poker Tracker (Cosmic Owl Edition)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A beautifully themed, retro Y2K web application designed to track poker sessions and debts among friends. No more confusing spreadsheets or lost money—this app keeps your ledger balanced while looking incredibly stylish.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Multi-Room Architecture**: Host infinite isolated poker groups. Create a new room with a unique name and passcode, or join an existing one to see your group's private ledger.
+- **Session Tracking**: Log new game nights (Notes), track where they happened, and add specific details.
+- **Player Management**: Easily add friends to your room and manage who played in which session.
+- **Ledger & Debt Management**: Track exactly what every player bought in for and cashed out for. The app automatically calculates net discrepancies to ensure no money goes missing and your ledger is perfectly balanced.
+- **Cosmic Owl Aesthetic**: A fully custom Y2K digital aesthetic featuring pastel color palettes, 8-bit pixel fonts, harsh retro shadows, nostalgic cursor replacements, and decorative digital stickers.
 
-## React Compiler
+## 🛠 Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: React, TypeScript, Vite
+- **Styling**: Tailwind CSS (with heavy custom CSS variables for the retro theme)
+- **State Management**: Zustand
+- **Routing**: React Router v7
+- **Backend / Database**: Supabase (PostgreSQL)
 
-## Expanding the ESLint configuration
+## 🚀 Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
+- Node.js (v18+)
+- A Supabase project
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/from2future/poker-tracker.git
+   cd poker-tracker
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+3. Configure Environment Variables:
+   Create a `.env` file in the root directory and add your Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_project_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+5. Open your browser and navigate to `http://localhost:5173`.
+
+## 🎨 Design Details
+The "Cosmic Owl" redesign completely transforms generic dashboard UI into a customized board-game night experience. It leverages `Press Start 2P` for data readability and `Dancing Script` for title accents, combined with carefully placed static assets (`/public/cosmic-owl/stickers`) to give the UI a living, scrapbook feel.
