@@ -189,14 +189,19 @@ export const usePokerStore = create<PokerState>((set, get) => ({
     },
 
     setResult: async (result) => {
-        // 1. Optimistic update locally first for absolute speed
+        // 1. Optimistic update locally — preserve array order to avoid scroll jumps
         set(state => {
-            const otherResults = state.results.filter(
-                r => !(r.sessionId === result.sessionId && r.playerId === result.playerId)
+            const idx = state.results.findIndex(
+                r => r.sessionId === result.sessionId && r.playerId === result.playerId
             );
-            return {
-                results: [...otherResults, result]
-            };
+            if (idx >= 0) {
+                // Update in-place to keep the same position in the array
+                const updated = [...state.results];
+                updated[idx] = result;
+                return { results: updated };
+            }
+            // New result — append
+            return { results: [...state.results, result] };
         });
 
         // 2. Debounce the DB persistence
